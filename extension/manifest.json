@@ -1,3 +1,4 @@
+
 {
   "manifest_version": 3,
   "name": "Criterio",
@@ -25,12 +26,6 @@
     "default_path": "src/sidepanel.html"
   },
   "action": {
-    "default_title": "Criterio",
-    "default_icon": {
-      "128": "assets/icon128.png"
-    }
-  },
-  "icons": {
-    "128": "assets/icon128.png"
+    "default_title": "Criterio"
   }
 }
