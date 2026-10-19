@@ -212,6 +212,7 @@ async function detectSource() {
 function init() {
   try {
     injectStyles();
+    detectSource();
     const container = extractArticleContainer();
     if (container) {
       highlightSignals(container);
