@@ -1,3 +1,104 @@
 {
-  "sources": []
+  "sources": [
+    {
+      "id": "elpais",
+      "name": "El País",
+      "domains": ["elpais.com"],
+      "country": "España",
+      "bias": "Centro-izquierda",
+      "reliability": "Alta",
+      "notes": "Periódico de referencia. Orientación progresista.",
+      "methodology": "Basado en consenso aproximado de AllSides, MBFC y análisis editoriales públicos."
+    },
+    {
+      "id": "elmundo",
+      "name": "El Mundo",
+      "domains": ["elmundo.es"],
+      "country": "España",
+      "bias": "Centro-derecha",
+      "reliability": "Alta",
+      "notes": "Periódico de referencia. Orientación liberal-conservadora.",
+      "methodology": "Basado en consenso aproximado de AllSides, MBFC y análisis editoriales públicos."
+    },
+    {
+      "id": "abc",
+      "name": "ABC",
+      "domains": ["abc.es"],
+      "country": "España",
+      "bias": "Derecha",
+      "reliability": "Media-Alta",
+      "notes": "Tradicionalmente conservador y monárquico.",
+      "methodology": "Basado en consenso aproximado de AllSides, MBFC y análisis editoriales públicos."
+    },
+    {
+      "id": "lavanguardia",
+      "name": "La Vanguardia",
+      "domains": ["lavanguardia.com"],
+      "country": "España",
+      "bias": "Centro",
+      "reliability": "Alta",
+      "notes": "Periódico catalán de referencia, generalmente moderado.",
+      "methodology": "Basado en consenso aproximado de AllSides, MBFC y análisis editoriales públicos."
+    },
+    {
+      "id": "eldiario",
+      "name": "elDiario.es",
+      "domains": ["eldiario.es"],
+      "country": "España",
+      "bias": "Izquierda",
+      "reliability": "Media-Alta",
+      "notes": "Medio digital progresista. Modelo de socios.",
+      "methodology": "Basado en consenso aproximado de MBFC y análisis editoriales públicos."
+    },
+    {
+      "id": "publico",
+      "name": "Público",
+      "domains": ["publico.es"],
+      "country": "España",
+      "bias": "Izquierda",
+      "reliability": "Media",
+      "notes": "Orientación claramente progresista.",
+      "methodology": "Basado en análisis editoriales públicos."
+    },
+    {
+      "id": "okdiario",
+      "name": "Okdiario",
+      "domains": ["okdiario.com"],
+      "country": "España",
+      "bias": "Derecha",
+      "reliability": "Baja-Media",
+      "notes": "Medio digital de orientación conservadora. Frecuentes críticas por sensacionalismo.",
+      "methodology": "Basado en análisis editoriales públicos y fact-checkers."
+    },
+    {
+      "id": "rtve",
+      "name": "RTVE",
+      "domains": ["rtve.es"],
+      "country": "España",
+      "bias": "Centro",
+      "reliability": "Alta",
+      "notes": "Medio público. Sujeto a críticas de influencia gubernamental según el momento.",
+      "methodology": "Basado en su carácter de medio público y análisis editoriales."
+    },
+    {
+      "id": "bbc",
+      "name": "BBC",
+      "domains": ["bbc.com", "bbc.co.uk"],
+      "country": "Reino Unido",
+      "bias": "Centro",
+      "reliability": "Alta",
+      "notes": "Medio público británico de referencia internacional.",
+      "methodology": "Basado en AllSides y MBFC."
+    },
+    {
+      "id": "reuters",
+      "name": "Reuters",
+      "domains": ["reuters.com"],
+      "country": "Internacional",
+      "bias": "Centro",
+      "reliability": "Muy Alta",
+      "notes": "Agencia de noticias. Generalmente considerada de alta fiabilidad.",
+      "methodology": "Basado en AllSides, MBFC y Ad Fontes."
+    }
+  ]
 }
