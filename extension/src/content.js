@@ -185,6 +185,30 @@ function injectStyles() {
   document.head.appendChild(style);
 }
 
+async function detectSource() {
+  try {
+    const response = await fetch(chrome.runtime.getURL("data/sources.json"));
+    const data = await response.json();
+    const hostname = window.location.hostname.replace("www.", "");
+
+    const source = data.sources.find(s =>
+      s.domains.some(domain => hostname.includes(domain))
+    );
+
+    if (source) {
+      console.log("Fuente detectada:", source);
+      // Más adelante enviaremos esto al Side Panel
+      return source;
+    } else {
+      console.log("Fuente no catalogada:", hostname);
+      return null;
+    }
+  } catch (e) {
+    console.error("Error cargando sources.json", e);
+    return null;
+  }
+}
+
 function init() {
   try {
     injectStyles();
