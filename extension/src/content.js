@@ -65,6 +65,22 @@ const SIGNALS = [
       "«", "»"  // comillas que a veces se usan irónicamente (detección básica)
     ]
   }
+  // Comunicación con el Side Panel
+let currentSource = null;
+let signalCounts = { loaded: 0, weak: 0, certainty: 0, sensational: 0, irony: 0 };
+
+// Modifica la función highlightSignals para que cuente
+// (busca la parte donde haces el replace y añade un contador)
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "getAnalysis") {
+    sendResponse({
+      source: currentSource,
+      signals: signalCounts
+    });
+  }
+  return true;
+});
 ];
 
 // ===== FUNCIONES =====
