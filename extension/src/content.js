@@ -1,7 +1,7 @@
-// Criterio - Content Script v2.0
-// Análisis estructural local: lenguaje cargado, atribución débil, certeza, sensacionalismo y posibles marcadores de ironía
 
-console.log("Criterio content script v2.0 loaded");
+// Criterio - Content Script v2.1 (con comunicación al Side Panel)
+
+console.log("Criterio content script v2.1 loaded");
 
 // ===== CONFIGURACIÓN DE SEÑALES =====
 const SIGNALS = [
@@ -24,7 +24,7 @@ const SIGNALS = [
     id: "weak",
     name: "Atribución débil o anónima",
     colorClass: "criterio-weak",
-    tooltip: "Atribución débil o anónima. La información se presenta sin identificar claramente la fuente, lo que dificulta su verificación.",
+    tooltip: "Atribución débil o anónima. La información se presenta sin identificar claramente la fuente.",
     patterns: [
       "fuentes cercanas", "según fuentes", "se dice", "se comenta", "expertos afirman",
       "algunos dicen", "se rumorea", "según informes", "fuentes no identificadas",
@@ -36,7 +36,7 @@ const SIGNALS = [
     id: "certainty",
     name: "Certeza excesiva",
     colorClass: "criterio-certainty",
-    tooltip: "Certeza excesiva. Se presenta una afirmación como indiscutible sin matizar o sin aportar evidencia suficiente.",
+    tooltip: "Certeza excesiva. Se presenta una afirmación como indiscutible sin matizar.",
     patterns: [
       "sin duda", "indudablemente", "está claro que", "es evidente que", "obviamente",
       "claramente", "definitivamente", "sin lugar a dudas", "es innegable",
@@ -47,7 +47,7 @@ const SIGNALS = [
     id: "sensational",
     name: "Sensacionalismo / exageración",
     colorClass: "criterio-sensational",
-    tooltip: "Posible sensacionalismo o exageración. Se usa lenguaje que amplifica el impacto emocional del hecho.",
+    tooltip: "Posible sensacionalismo o exageración.",
     patterns: [
       "sin precedentes", "histórico", "épico", "apocalíptico", "devastador",
       "el mayor", "el peor", "nunca antes", "por primera vez en la historia",
@@ -58,44 +58,43 @@ const SIGNALS = [
     id: "irony",
     name: "Posible ironía / tono irónico",
     colorClass: "criterio-irony",
-    tooltip: "Posible marcador de ironía o sarcasmo. La detección es limitada con reglas locales; el contexto puede cambiar el significado. Úsalo como aviso, no como certeza.",
+    tooltip: "Posible marcador de ironía. La detección es limitada; úsalo como aviso.",
     patterns: [
       "ya claro", "sí, seguro", "qué sorpresa", "menuda sorpresa",
-      "como era de esperar", "sorprendentemente", "curiosamente",
-      "«", "»"  // comillas que a veces se usan irónicamente (detección básica)
+      "como era de esperar", "sorprendentemente", "curiosamente"
     ]
   }
-  // Comunicación con el Side Panel
+];
+
+// Variables globales para el Side Panel
 let currentSource = null;
 let signalCounts = { loaded: 0, weak: 0, certainty: 0, sensational: 0, irony: 0 };
 
-// Modifica la función highlightSignals para que cuente
-// (busca la parte donde haces el replace y añade un contador)
-
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "getAnalysis") {
-    sendResponse({
-      source: currentSource,
-      signals: signalCounts
-    });
-  }
-  return true;
-});
-];
-
 // ===== FUNCIONES =====
+
+async function detectSource() {
+  try {
+    const response = await fetch(chrome.runtime.getURL("data/sources.json"));
+    const data = await response.json();
+    const hostname = window.location.hostname.replace("www.", "");
+
+    const source = data.sources.find(s =>
+      s.domains.some(domain => hostname.includes(domain))
+    );
+
+    currentSource = source || null;
+    console.log("Fuente detectada:", currentSource);
+    return currentSource;
+  } catch (e) {
+    console.error("Error cargando sources.json", e);
+    return null;
+  }
+}
 
 function extractArticleContainer() {
   const selectors = [
-    "article",
-    "[role='main']",
-    ".article-body",
-    ".post-content",
-    ".entry-content",
-    ".story-body",
-    ".content__article-body",
-    "main",
-    ".content"
+    "article", "[role='main']", ".article-body", ".post-content",
+    ".entry-content", ".story-body", ".content__article-body", "main", ".content"
   ];
 
   for (const selector of selectors) {
@@ -110,30 +109,24 @@ function extractArticleContainer() {
 function highlightSignals(container) {
   if (!container) return;
 
-  const walker = document.createTreeWalker(
-    container,
-    NodeFilter.SHOW_TEXT,
-    {
-      acceptNode: (node) => {
-        const parent = node.parentElement;
-        if (!parent) return NodeFilter.FILTER_REJECT;
-        const tag = parent.tagName;
-        if (["SCRIPT", "STYLE", "NOSCRIPT", "TEXTAREA", "INPUT"].includes(tag)) {
-          return NodeFilter.FILTER_REJECT;
-        }
-        if (parent.classList && parent.classList.contains("criterio-hl")) {
-          return NodeFilter.FILTER_REJECT;
-        }
-        return NodeFilter.FILTER_ACCEPT;
+  // Reiniciar contadores
+  signalCounts = { loaded: 0, weak: 0, certainty: 0, sensational: 0, irony: 0 };
+
+  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
+    acceptNode: (node) => {
+      const parent = node.parentElement;
+      if (!parent) return NodeFilter.FILTER_REJECT;
+      if (["SCRIPT", "STYLE", "NOSCRIPT", "TEXTAREA", "INPUT"].includes(parent.tagName)) {
+        return NodeFilter.FILTER_REJECT;
       }
+      if (parent.classList?.contains("criterio-hl")) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
     }
-  );
+  });
 
   const textNodes = [];
   let node;
-  while ((node = walker.nextNode())) {
-    textNodes.push(node);
-  }
+  while ((node = walker.nextNode())) textNodes.push(node);
 
   textNodes.forEach(textNode => {
     let html = textNode.textContent;
@@ -141,13 +134,13 @@ function highlightSignals(container) {
 
     SIGNALS.forEach(signal => {
       signal.patterns.forEach(pattern => {
-        // Escapar caracteres especiales para regex
         const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         const regex = new RegExp(`(${escaped})`, "gi");
 
         if (regex.test(html)) {
           modified = true;
           html = html.replace(regex, (match) => {
+            signalCounts[signal.id] = (signalCounts[signal.id] || 0) + 1;
             return `<span class="criterio-hl ${signal.colorClass}" title="${signal.tooltip}">${match}</span>`;
           });
         }
@@ -164,75 +157,38 @@ function highlightSignals(container) {
 
 function injectStyles() {
   if (document.getElementById("criterio-styles")) return;
-
   const style = document.createElement("style");
   style.id = "criterio-styles";
   style.textContent = `
-    .criterio-hl {
-      border-radius: 3px;
-      padding: 0 2px;
-      cursor: help;
-      transition: filter 0.15s ease;
-    }
-    .criterio-hl:hover {
-      filter: brightness(0.92);
-    }
-    .criterio-loaded {
-      background-color: rgba(255, 193, 7, 0.32);
-      border-bottom: 1px dashed #f59e0b;
-    }
-    .criterio-weak {
-      background-color: rgba(59, 130, 246, 0.28);
-      border-bottom: 1px dashed #3b82f6;
-    }
-    .criterio-certainty {
-      background-color: rgba(239, 68, 68, 0.28);
-      border-bottom: 1px dashed #ef4444;
-    }
-    .criterio-sensational {
-      background-color: rgba(249, 115, 22, 0.30);
-      border-bottom: 1px dashed #f97316;
-    }
-    .criterio-irony {
-      background-color: rgba(168, 85, 247, 0.28);
-      border-bottom: 1px dashed #a855f7;
-    }
+    .criterio-hl { border-radius: 3px; padding: 0 2px; cursor: help; }
+    .criterio-loaded { background: rgba(255,193,7,0.32); border-bottom: 1px dashed #f59e0b; }
+    .criterio-weak { background: rgba(59,130,246,0.28); border-bottom: 1px dashed #3b82f6; }
+    .criterio-certainty { background: rgba(239,68,68,0.28); border-bottom: 1px dashed #ef4444; }
+    .criterio-sensational { background: rgba(249,115,22,0.30); border-bottom: 1px dashed #f97316; }
+    .criterio-irony { background: rgba(168,85,247,0.28); border-bottom: 1px dashed #a855f7; }
   `;
   document.head.appendChild(style);
 }
 
-async function detectSource() {
-  try {
-    const response = await fetch(chrome.runtime.getURL("data/sources.json"));
-    const data = await response.json();
-    const hostname = window.location.hostname.replace("www.", "");
-
-    const source = data.sources.find(s =>
-      s.domains.some(domain => hostname.includes(domain))
-    );
-
-    if (source) {
-      console.log("Fuente detectada:", source);
-      // Más adelante enviaremos esto al Side Panel
-      return source;
-    } else {
-      console.log("Fuente no catalogada:", hostname);
-      return null;
-    }
-  } catch (e) {
-    console.error("Error cargando sources.json", e);
-    return null;
+// Comunicación con el Side Panel
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "getAnalysis") {
+    sendResponse({
+      source: currentSource,
+      signals: signalCounts
+    });
   }
-}
+  return true;
+});
 
-function init() {
+async function init() {
   try {
     injectStyles();
-    detectSource();
+    await detectSource();
     const container = extractArticleContainer();
     if (container) {
       highlightSignals(container);
-      console.log("Criterio: análisis v2.0 aplicado");
+      console.log("Criterio: análisis completado", signalCounts);
     }
   } catch (e) {
     console.error("Criterio error:", e);
@@ -242,5 +198,5 @@ function init() {
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", init);
 } else {
-  setTimeout(init, 300); // pequeño delay para páginas dinámicas
+  setTimeout(init, 400);
 }
