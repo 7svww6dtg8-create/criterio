@@ -110,7 +110,7 @@ function highlightSignals(container) {
   if (!container) return;
 
   // Reiniciar contadores
-  signalCounts = { loaded: 0, weak: 0, certainty: 0, sensational: 0, irony: 0 };
+  signalCounts = { loaded: 0, weak: 0, certainty: 0, sensational: 0, irony: 0, official: 0 };
 
   const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
     acceptNode: (node) => {
