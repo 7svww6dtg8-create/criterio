@@ -60,6 +60,24 @@ function showSignals(counts) {
     signalsList.innerHTML = `<div class="muted">No se han detectado señales destacadas.</div>`;
     signalsCard.style.display = "block";
   }
+  
+const labels = {
+  loaded: "Lenguaje cargado",
+  weak: "Atribución débil",
+  certainty: "Certeza excesiva",
+  sensational: "Sensacionalismo",
+  irony: "Posible ironía",
+  official: "Documentos oficiales"
+};
+
+const colors = {
+  loaded: "loaded",
+  weak: "weak",
+  certainty: "certainty",
+  sensational: "sensational",
+  irony: "irony",
+  official: "official"
+};
 }
 
 // Pedir datos al content script de la pestaña activa
