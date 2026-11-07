@@ -61,6 +61,15 @@ function showSignals(counts) {
     signalsCard.style.display = "block";
   }
 }
+// Enlace útil al BOE
+const boeLink = document.createElement("div");
+boeLink.className = "card";
+boeLink.innerHTML = `
+  <h2>Documentos oficiales</h2>
+  <p class="muted">Cuando se detectan menciones a leyes o códigos, se recomienda consultar la fuente original.</p>
+  <a href="https://www.boe.es" target="_blank" style="color:#2563eb;">Abrir el BOE</a>
+`;
+document.body.appendChild(boeLink);
 
 // Pedir datos al content script de la pestaña activa
 async function requestAnalysis() {
