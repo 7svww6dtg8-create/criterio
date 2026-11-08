@@ -86,7 +86,7 @@ const SIGNALS = [
 
 // Variables globales para el Side Panel
 let currentSource = null;
-let signalCounts = { loaded: 0, weak: 0, certainty: 0, sensational: 0, irony: 0 };
+let signalCounts = { loaded: 0, weak: 0, certainty: 0, sensational: 0, irony: 0, official: 0 };
 
 // ===== FUNCIONES =====
 
