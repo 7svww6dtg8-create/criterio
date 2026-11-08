@@ -29,27 +29,7 @@ const SIGNALS = [
 
 let currentSource = null;
 let signalCounts = { loaded: 0, weak: 0, certainty: 0, official: 0 };
-
-// Detección específica de artículos
-function detectSpecificArticles(text) {
-  const results = [];
-  const patterns = [
-    /art(?:ículo|\.)\s*(\d+)\s*(?:del\s*)?(?:código\s*penal|cp)/gi,
-    /art(?:ículo|\.)\s*(\d+)\s*(?:del\s*)?(?:código\s*civil|cc)/gi
-  ];
-
-  patterns.forEach((regex, index) => {
-    let match;
-    while ((match = regex.exec(text)) !== null) {
-      results.push({
-        type: index === 0 ? "penal" : "civil",
-        article: match[1],
-        full: match[0]
-      });
-    }
-  });
-  return results;
-}
+let detectedArticles = [];
 
 async function detectSource() {
   try {
@@ -60,6 +40,21 @@ async function detectSource() {
   } catch (e) {
     console.error("Error cargando fuentes:", e);
   }
+}
+
+function detectSpecificArticles(text) {
+  const results = [];
+  const regexPenal = /art(?:ículo|\.)\s*(\d+)\s*(?:del\s*)?(?:código\s*penal|c\.?p\.?)/gi;
+  const regexCivil = /art(?:ículo|\.)\s*(\d+)\s*(?:del\s*)?(?:código\s*civil|c\.?c\.?)/gi;
+
+  let match;
+  while ((match = regexPenal.exec(text)) !== null) {
+    results.push({ type: "penal", article: match[1], full: match[0] });
+  }
+  while ((match = regexCivil.exec(text)) !== null) {
+    results.push({ type: "civil", article: match[1], full: match[0] });
+  }
+  return results;
 }
 
 function highlightSignals() {
@@ -122,7 +117,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "getAnalysis") {
     sendResponse({
       source: currentSource,
-      signals: signalCounts
+      signals: signalCounts,
+      articles: detectedArticles
     });
   }
   return true;
@@ -132,11 +128,16 @@ async function init() {
   injectStyles();
   await detectSource();
   highlightSignals();
+
+  // Detectar artículos específicos
+  const pageText = document.body.innerText || "";
+  detectedArticles = detectSpecificArticles(pageText);
+  console.log("Artículos detectados:", detectedArticles);
   console.log("Análisis completado", signalCounts);
 }
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => setTimeout(init, 500));
+  document.addEventListener("DOMContentLoaded", () => setTimeout(init, 600));
 } else {
-  setTimeout(init, 500);
+  setTimeout(init, 600);
 }
