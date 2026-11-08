@@ -44,6 +44,29 @@ function updateUI(data) {
   if (!hasSignals) {
     signalsList.innerHTML = `<div class="muted">No se han detectado señales destacadas.</div>`;
   }
+  // Bloque de documentos oficiales
+let officialBlock = document.getElementById("official-block");
+if (officialBlock) officialBlock.remove();
+
+if (data?.signals?.official > 0) {
+  officialBlock = document.createElement("div");
+  officialBlock.id = "official-block";
+  officialBlock.className = "card";
+  officialBlock.innerHTML = `
+    <h2>Documentos oficiales</h2>
+    <p>Se han detectado <strong>${data.signals.official}</strong> mención(es) a normas o documentos oficiales.</p>
+    <p style="margin: 12px 0;">
+      <a href="https://www.boe.es/buscar/" target="_blank" 
+         style="color:#2563eb; font-weight:500; text-decoration:none;">
+        → Buscar en el BOE
+      </a>
+    </p>
+    <p class="muted" style="font-size:12px; margin:0;">
+      Criterio solo detecta menciones. Consulta siempre el texto oficial completo. Esto no es asesoramiento legal.
+    </p>
+  `;
+  document.body.appendChild(officialBlock);
+}
   signalsCard.style.display = "block";
 }
 
