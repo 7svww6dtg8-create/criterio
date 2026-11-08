@@ -30,6 +30,27 @@ const SIGNALS = [
 let currentSource = null;
 let signalCounts = { loaded: 0, weak: 0, certainty: 0, official: 0 };
 
+// Detección específica de artículos
+function detectSpecificArticles(text) {
+  const results = [];
+  const patterns = [
+    /art(?:ículo|\.)\s*(\d+)\s*(?:del\s*)?(?:código\s*penal|cp)/gi,
+    /art(?:ículo|\.)\s*(\d+)\s*(?:del\s*)?(?:código\s*civil|cc)/gi
+  ];
+
+  patterns.forEach((regex, index) => {
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      results.push({
+        type: index === 0 ? "penal" : "civil",
+        article: match[1],
+        full: match[0]
+      });
+    }
+  });
+  return results;
+}
+
 async function detectSource() {
   try {
     const response = await fetch(chrome.runtime.getURL("data/sources.json"));
