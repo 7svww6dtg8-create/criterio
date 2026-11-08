@@ -64,6 +64,24 @@ const SIGNALS = [
       "como era de esperar", "sorprendentemente", "curiosamente"
     ]
   }
+  {
+  id: "official",
+  name: "Documento oficial",
+  colorClass: "criterio-official",
+  tooltip: "Mención a documento oficial. Se recomienda consultar el texto original en el BOE.",
+  patterns: [
+    "código penal", "codigo penal",
+    "código civil", "codigo civil",
+    "boletín oficial del estado", "boletin oficial del estado", "boe",
+    "ley orgánica", "ley organica",
+    "real decreto-ley", "real decreto ley", "real decreto",
+    "constitución española", "constitucion española",
+    "estatuto de los trabajadores",
+    "ley de enjuiciamiento criminal",
+    "ley de enjuiciamiento civil",
+    "ley general tributaria"
+  ]
+}
 ];
 
 // Variables globales para el Side Panel
