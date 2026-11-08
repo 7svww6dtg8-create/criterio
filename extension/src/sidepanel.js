@@ -45,24 +45,27 @@ function updateUI(data) {
     signalsList.innerHTML = `<div class="muted">No se han detectado señales destacadas.</div>`;
   }
   // Bloque de documentos oficiales
-let officialBlock = document.getElementById("official-block");
-if (officialBlock) officialBlock.remove();
-
 if (data?.signals?.official > 0) {
+  let officialBlock = document.getElementById("official-block");
+  if (officialBlock) officialBlock.remove();
+
   officialBlock = document.createElement("div");
   officialBlock.id = "official-block";
   officialBlock.className = "card";
+
+  // Enlaces más útiles según lo detectado
+  let links = `
+    <a href="https://www.boe.es/buscar/act.php?id=BOE-A-1995-25444" target="_blank" style="display:block; margin:6px 0; color:#2563eb;">Código Penal (texto consolidado)</a>
+    <a href="https://www.boe.es/buscar/act.php?id=BOE-A-1889-4763" target="_blank" style="display:block; margin:6px 0; color:#2563eb;">Código Civil (texto consolidado)</a>
+    <a href="https://www.boe.es/buscar/" target="_blank" style="display:block; margin:6px 0; color:#2563eb;">Buscar en el BOE</a>
+  `;
+
   officialBlock.innerHTML = `
     <h2>Documentos oficiales</h2>
-    <p>Se han detectado <strong>${data.signals.official}</strong> mención(es) a normas o documentos oficiales.</p>
-    <p style="margin: 12px 0;">
-      <a href="https://www.boe.es/buscar/" target="_blank" 
-         style="color:#2563eb; font-weight:500; text-decoration:none;">
-        → Buscar en el BOE
-      </a>
-    </p>
-    <p class="muted" style="font-size:12px; margin:0;">
-      Criterio solo detecta menciones. Consulta siempre el texto oficial completo. Esto no es asesoramiento legal.
+    <p>Se han detectado <strong>${data.signals.official}</strong> mención(es).</p>
+    ${links}
+    <p class="muted" style="font-size:12px; margin-top:10px;">
+      Enlaces directos a textos consolidados cuando es posible. Siempre verifica en el BOE. No es asesoramiento legal.
     </p>
   `;
   document.body.appendChild(officialBlock);
